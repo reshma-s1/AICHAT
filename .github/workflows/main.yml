@@ -1,29 +1,33 @@
-name: Streamlit App CI
+name: Deploy Streamlit App
 
 on:
   push:
     branches:
-      - main
+      - main  # Change this to your main branch name
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.9
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9  # Change this to your desired Python version
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  # Assuming you have a requirements.txt file
 
-    - name: Run Streamlit app
-      env:
-        API_KEY: ${{ secrets.API_KEY }}  # Pass the secret as an environment variable
-      run: streamlit run app.py
+      - name: Set up OpenAPI key
+        run: echo "::set-env name=OPENAPI_KEY::${{ secrets.API_KEY }}"
+
+      - name: Run Streamlit app
+        run: |
+          streamlit run app.py --server.port=8501 --server.address=0.0.0.0
+        env:
+          OPENAPI_KEY: ${{ env.API_KEY }}
